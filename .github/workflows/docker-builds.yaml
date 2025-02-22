@@ -3,37 +3,33 @@ name: Build Docker Images
 on:
   push:
     branches:
-      - main
+    - main
 
 jobs:
-
-
   trigger-build:
     uses: multi-repo/workflows/.github/workflows/kaniko-build.yaml@main
     with:
-      image-name: ${{ github.repository }}/nest-api
+      image-name: ${{ github.repository }}/nestjs-api
     secrets:
-      personal_access_token: ${{ secrets.GITHUB_TOKEN }}
+      personal_access_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-
-          
   trigger-cleanup:
-      uses: multi-repo/workflows/.github/workflows/clean-registry.yaml@main
-      with:
-        owner: ${{ github.repository_owner }}
-        repository: nestjs-api
-        package: multi-repo/nestjs-api
-        keep_n_tagged: 2
-        dry_run: true
-      secrets:
-        personal_access_token: ${{ secrets.GITHUB_TOKEN }}
-
-
+    needs: [ trigger-build ]
+    uses: multi-repo/workflows/.github/workflows/clean-registry.yaml@main
+    with:
+      owner: ${{ github.repository_owner }}
+      repository: nestjs-api
+      package: nestjs-api/nestjs-api
+      keep_n_tagged: 2
+      dry_run: true
+    secrets:
+      personal_access_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   deploy:
-    needs: [trigger-cleanup, trigger-build]
+    needs: [ trigger-cleanup ]
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to environment
-        run: |
-          echo "Deploying application"
+    - name: Deploy to environment
+      run: |
+        echo "Deploying application"
+        
