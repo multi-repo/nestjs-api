@@ -32,4 +32,3 @@ jobs:
     - name: Deploy to environment
       run: |
         echo "Deploying application"
-        
