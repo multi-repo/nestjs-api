@@ -22,7 +22,7 @@ jobs:
       with:
         owner: ${{ github.repository_owner }}
         repository: nestjs-api
-        package: nestjs-api/nest-api
+        package: multi-repo/nestjs-api
         keep_n_tagged: 2
         dry_run: true
       secrets:
