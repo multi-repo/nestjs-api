@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
+import { FastifyRequest } from 'fastify'
 
 @Injectable()
 export class AtGuard {
@@ -16,8 +17,7 @@ export class AtGuard {
     ])
     if (isPublic) return true
 
-    const request = context.switchToHttp().getRequest()
-
+    const request = context.switchToHttp().getRequest<FastifyRequest>()
     const user = request.session.user
     if (!user) {
       throw new UnauthorizedException('User not found in session')

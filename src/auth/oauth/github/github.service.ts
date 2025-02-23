@@ -1,8 +1,8 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { OAuthService } from '../oauth.service'
 import { AuthService } from 'src/auth/auth/auth.service'
-import { Request } from 'express'
 import { AuthDto } from 'src/auth/auth/dto'
+import { FastifyRequest } from 'fastify'
 
 @Injectable()
 export class GithubOAuthService {
@@ -16,7 +16,7 @@ export class GithubOAuthService {
   private readonly GITHUB_USER_URL = 'https://api.github.com/user'
   private readonly GITHUB_EMAILS_URL = 'https://api.github.com/user/emails'
 
-  async authenticate(code: string, req: Request): Promise<any> {
+  async authenticate(code: string, req: FastifyRequest): Promise<any> {
     try {
       const tokenResponse = await this.oauthService.getToken(
         this.GITHUB_TOKEN_URL,

@@ -14,8 +14,8 @@ import { AuthService } from './auth.service'
 import { AuthDto } from './dto'
 import { AtGuard } from './guards'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { Request, Response } from 'express'
-
+import { FastifyRequest } from 'fastify'
+import { FastifyReply } from 'fastify'
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -24,7 +24,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Register new account' })
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async signupLocal(@Body() dto: AuthDto, @Req() req: Request): Promise<any> {
+  async signupLocal(
+    @Body() dto: AuthDto,
+    @Req() req: FastifyRequest,
+  ): Promise<any> {
     return await this.authService.signupLocal(dto, req)
   }
 
@@ -35,8 +38,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async signinLocal(
     @Body() dto: AuthDto,
-    @Req() req: Request,
-    @Res() res: Response,
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
   ): Promise<any> {
     await this.authService.signinLocal(dto, req)
     return res.redirect('/auth/status')
@@ -48,7 +51,7 @@ export class AuthController {
   @Get('status')
   @UseGuards(AtGuard)
   @HttpCode(200)
-  async status(@Req() req: Request) {
+  async status(@Req() req: FastifyRequest) {
     return req.session.user
   }
 
@@ -58,7 +61,7 @@ export class AuthController {
   @Get('logout')
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: Request): Promise<boolean> {
+  async logout(@Req() req: FastifyRequest): Promise<boolean> {
     return await this.authService.logout(req)
   }
 }

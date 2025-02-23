@@ -2,8 +2,8 @@
 import { Injectable } from '@nestjs/common'
 import { OAuthService } from '../oauth.service'
 import { AuthService } from 'src/auth/auth/auth.service'
-import { Request } from 'express'
 import { AuthDto } from 'src/auth/auth/dto'
+import { FastifyRequest } from 'fastify'
 
 @Injectable()
 export class GoogleOAuthService {
@@ -16,7 +16,7 @@ export class GoogleOAuthService {
     private readonly authService: AuthService,
   ) {}
 
-  async authenticate(code: string, req: Request): Promise<any> {
+  async authenticate(code: string, req: FastifyRequest): Promise<any> {
     const tokenData = await this.oAuthService.getToken(this.GOOGLE_TOKEN_URL, {
       code,
       client_id: process.env.GOOGLE_CLIENT_ID,

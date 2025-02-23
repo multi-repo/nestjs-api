@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Req, Res } from '@nestjs/common'
 import { GithubOAuthService } from './github.service'
-import { Request, Response } from 'express'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { FastifyRequest, FastifyReply } from 'fastify'
 
 @Controller('auth/github')
 export class GithubController {
@@ -10,7 +10,7 @@ export class GithubController {
   @ApiTags('OAuth2-github')
   @ApiOperation({ summary: 'login with github account' })
   @Get('login')
-  async githubLogin(@Res() res: Response) {
+  async githubLogin(@Res() res: FastifyReply) {
     const url = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_CALLBACK_URL}&scope=user:email`
     return res.redirect(url)
   }
@@ -20,15 +20,17 @@ export class GithubController {
   @Get('callback')
   async githubCallback(
     @Query('code') code: string,
-    @Req() req: Request,
-    @Res() res: Response,
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
   ) {
     try {
+      // Обрабатываем авторизацию через GitHub
       await this.githubOAuthService.authenticate(code, req)
-      return res.redirect('/auth/status')
+      return res.redirect('/auth/status') // переадресация на статус
     } catch (error) {
       console.error('GitHub OAuth callback error:', error)
-      return res.status(error.status || 500).json({ message: error.message })
+      // Обработка ошибки, если что-то пошло не так
+      return res.status(error.status || 500).send({ message: error.message })
     }
   }
 }

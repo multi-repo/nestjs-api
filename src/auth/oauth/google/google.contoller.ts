@@ -7,9 +7,10 @@ import {
   Req,
   Res,
 } from '@nestjs/common'
-import { Request, Response } from 'express'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { GoogleOAuthService } from './google.service'
+import { FastifyRequest } from 'fastify'
+import { FastifyReply } from 'fastify'
 
 @ApiTags('OAuth2-google')
 @Controller('auth')
@@ -19,7 +20,7 @@ export class OAuthController {
   @ApiTags('OAuth2-google')
   @ApiOperation({ summary: 'Google login' })
   @Get('google/login')
-  async handleLogin(@Res() res: Response) {
+  async handleLogin(@Res() res: FastifyReply) {
     const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
     const params = new URLSearchParams({
       client_id: process.env.GOOGLE_CLIENT_ID,
@@ -37,8 +38,8 @@ export class OAuthController {
   @Get('google/redirect')
   async handleRedirect(
     @Query('code') code: string,
-    @Res() res: Response,
-    @Req() req: Request,
+    @Res() res: FastifyReply,
+    @Req() req: FastifyRequest,
   ) {
     try {
       await this.googleService.authenticate(code, req)
