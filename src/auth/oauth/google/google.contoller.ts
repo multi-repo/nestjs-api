@@ -21,6 +21,7 @@ export class OAuthController {
   @ApiOperation({ summary: 'Google login' })
   @Get('google/login')
   async handleLogin(@Res() res: FastifyReply) {
+    console.log('Google login route hit')
     const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
     const params = new URLSearchParams({
       client_id: process.env.GOOGLE_CLIENT_ID,
@@ -30,7 +31,8 @@ export class OAuthController {
     })
 
     const googleLoginUrl = `${baseUrl}?${params.toString()}`
-    return res.redirect(googleLoginUrl)
+    console.log('Redirecting to:', googleLoginUrl)
+    return res.redirect(googleLoginUrl, 302)
   }
 
   @ApiTags('OAuth2-google')
@@ -41,10 +43,15 @@ export class OAuthController {
     @Res() res: FastifyReply,
     @Req() req: FastifyRequest,
   ) {
+    console.log('Session before authentication:', req.session)
+
     try {
       await this.googleService.authenticate(code, req)
-      return res.redirect('/auth/status')
+      console.log('Session after authentication:', req.session)
+      return res.redirect('/auth/status', 302)
     } catch (error) {
+      console.error('Authentication error:', error)
+
       throw new HttpException(
         error.response?.data?.message || error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,

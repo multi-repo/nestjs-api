@@ -12,7 +12,7 @@ export class GithubController {
   @Get('login')
   async githubLogin(@Res() res: FastifyReply) {
     const url = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_CALLBACK_URL}&scope=user:email`
-    return res.redirect(url)
+    return res.redirect(url, 302)
   }
 
   @ApiTags('OAuth2-github')
@@ -26,7 +26,7 @@ export class GithubController {
     try {
       // Обрабатываем авторизацию через GitHub
       await this.githubOAuthService.authenticate(code, req)
-      return res.redirect('/auth/status') // переадресация на статус
+      return res.redirect('/auth/status', 302) // переадресация на статус
     } catch (error) {
       console.error('GitHub OAuth callback error:', error)
       // Обработка ошибки, если что-то пошло не так
