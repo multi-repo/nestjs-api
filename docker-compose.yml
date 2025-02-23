@@ -1,7 +1,8 @@
 services:
 
   redis:
-    image: "${REDIS_IMAGE}:${IMAGE_TAG}"
+    image: "ghcr.io/multi-repo/redis/redis:main"
+    container_name: redis
     environment:
       TZ: "Europe/Omsk"
     ports:
@@ -17,39 +18,34 @@ services:
     cpus: 4.0
 
   postgres:
-    image: "${PG_IMAGE}:${IMAGE_TAG}"
+    image: "ghcr.io/multi-repo/postgres/pg:main"
     restart: always
     shm_size: 128mb
-    
     environment:
       POSTGRES_USERNAME: ${DATABASE_USERNAME}
-      DATABASE_NAME: ${DATABASE_NAME}
+      POSTGRES_DB: "${DATABASE_NAME}"
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       PGDATA: ${PGDATA}
       PGPORT: ${DATABASE_PORT}
       TZ: "Europe/Omsk"
-      
     ports:
       - "${DATABASE_PORT}:${DATABASE_PORT}"
     container_name: "postgres"
     volumes:
       - pg_data:${PGDATA}
     networks:
-      - app
-      
+      - app 
     logging:
       driver: "json-file" 
       options:
         max-size: "1m"  
         max-file: "3" 
-        
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $DATABASE_USERNAME"]
       interval: 30s
       timeout: 10s
       retries: 5        
       start_period: 5s
-
     mem_limit: 2G
     cpus: 4.0
   
@@ -58,20 +54,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: "${NESTAPI_IMAGE}:${IMAGE_TAG}"
+    image: "nestjs-api:latest"
     env_file:
       - prod.env
     environment:
       TZ: "Europe/Omsk"
-    
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"  
     depends_on:
-      - postgres 
+      - postgres
+      - redis 
     container_name: "nestjs-app"
     networks:
       - app
-      
     restart: always
     
     logging:
@@ -79,10 +74,8 @@ services:
       options:
         max-size: "1m"  
         max-file: "3" 
-
     mem_limit: 2G
     cpus: 4.0
-        
     sysctls:
       net.core.somaxconn: 1024
       net.ipv4.tcp_syncookies: 1
@@ -98,5 +91,3 @@ networks:
       driver: default
       config:
         - subnet: 192.168.100.0/24
-
-
