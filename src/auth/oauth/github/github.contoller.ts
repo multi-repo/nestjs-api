@@ -24,12 +24,12 @@ export class GithubController {
     @Res() res: FastifyReply,
   ) {
     try {
-      // Обрабатываем авторизацию через GitHub
+
       await this.githubOAuthService.authenticate(code, req)
       return res.redirect('/auth/status', 302) // переадресация на статус
     } catch (error) {
       console.error('GitHub OAuth callback error:', error)
-      // Обработка ошибки, если что-то пошло не так
+
       return res.status(error.status || 500).send({ message: error.message })
     }
   }

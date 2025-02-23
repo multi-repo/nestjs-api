@@ -14,7 +14,7 @@ export class AuthService {
   constructor(private prisma: PrismaService) {}
 
   async signupLocal(dto: AuthDto, req: FastifyRequest): Promise<Users> {
-    // Проверка, существует ли уже пользователь
+
     const existingUser = await this.prisma.users.findUnique({
       where: { username: dto.username, email: dto.email },
     })
@@ -22,16 +22,16 @@ export class AuthService {
       throw new BadRequestException('User already exists')
     }
 
-    // Хэширование пароля
+
     const hash = await argon.hash(dto.password)
     dto.password = undefined
 
-    // Создание нового пользователя в базе данных
+
     const newUser = await this.prisma.users.create({
       data: { ...dto, hash: hash },
     })
 
-    // Сохранение сессии с данными нового пользователя
+
     await this.saveSession(req, newUser)
 
     return newUser
@@ -69,7 +69,7 @@ export class AuthService {
       return user
     }
 
-    // Если пользователь не найден, создаем нового
+
     const hash = await argon.hash(dto.password)
     dto.password = undefined
     const newUser = await this.prisma.users.create({
@@ -89,7 +89,7 @@ export class AuthService {
     remember?: boolean,
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      // Установка времени жизни cookie в зависимости от флага remember
+
       if (remember) {
         req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30 // 30 дней
       } else {
