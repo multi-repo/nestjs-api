@@ -1,0 +1,27 @@
+schema: "*.graphql"
+documents: ."*.graphql.doc"
+generates:
+  generated/resolvers.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
+    config:
+      avoidOptionals: false
+      maybeValue: Maybe
+      resolverTemplate: true  
+  generated/types.ts:
+    plugins:
+      - "typescript"
+
+  generated/graphql.schema.ts:
+    plugins:
+      - "typescript"
+
+  generated/operations.ts:
+    plugins:
+      - "typescript-operations"
+      - "typed-document-node"
+
+  generated/generated.schema.graphql:
+    plugins:
+      - "typescript"
