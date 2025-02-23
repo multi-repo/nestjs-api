@@ -24,7 +24,6 @@ export class GithubController {
     @Res() res: FastifyReply,
   ) {
     try {
-
       await this.githubOAuthService.authenticate(code, req)
       return res.redirect('/auth/status', 302) // переадресация на статус
     } catch (error) {
